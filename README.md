@@ -23,7 +23,8 @@ TODO
 ### Description
 ### Semantics
 ### Contracts
-Don't use assign - this is already taken care of by the interpreter
+Best don't use assign - this is already taken care of by the interpreter
+However it still might work : to test !
 
 ### Examples
 

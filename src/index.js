@@ -13,17 +13,17 @@ function assertActionType(xstateAction) {
 function actionFactoryFromXstateAction(xstateAction, actionFactoryMap) {
   let actionFactory = void 0;
 
-  switch (typeof xstateAction) {
+  switch (typeof xstateAction.exec) {
     case 'function' :
-      actionFactory = xstateAction;
+      actionFactory = xstateAction.exec;
       break;
     // NOTE: never happens even though in the config, action is a string
     // case 'string':
     //   actionFactory = xstateAction in actionFactoryMap && actionFactoryMap[xstateAction];
     //   break;
-    case 'object':
+    case 'undefined':
       // NOTE : have to do this even if it makes it heavier, because there might be other data in xstateAction
-      actionFactory = xstateAction.type in actionFactoryMap && actionFactoryMap[xstateAction.type](xstateAction)
+      actionFactory = xstateAction.type in actionFactoryMap && actionFactoryMap[xstateAction.type]
       break;
     default:
       // We should never get there, we allegedly checked types already
@@ -50,8 +50,8 @@ export function xstateReactInterpreter(Machine, machineConfig, interpreterConfig
 
   // can't name that function yield, it is a reserved keyword
   function yyield(event) {
-    // DOC : apparently there is no problem using assign, apart from the fact that it duplicate extended state update
-    // (context in xstate terminology). So maybe explain how to deal with it
+    // DOC : tips/gotcha, action functions and action string mapped to functions can be used, but action types should
+    // not. It is always possible to wrap them up into a utility function : (extS, ev) => {updates:nothing, outputs: _}
 
     const nextControlState = xMachine.transition(controlState, event, extendedState);
     const { actions: actionFactories } = nextControlState;
