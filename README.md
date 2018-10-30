@@ -38,10 +38,12 @@ glasses.
 import { applyPatch } from "json-patch-es6"
 import produce, { nothing } from "immer"
 
+// The machine may produce several outputs when transitioning, they have to be merged
 const mergeOutputs = function (accOutputs, outputs) {
   return (accOutputs || []).concat(outputs)
 };
 
+// The machine produces actions to update its extended state, the reducer executes those actions
 const jsonPatchReducer = (extendedState, extendedStateUpdateOperations) => {
   return applyPatch(extendedState, extendedStateUpdateOperations, false, false).newDocument;
 };
@@ -64,6 +66,7 @@ const actionFactoryMaps = {
   },
 };
 
+// xstate machine
 const hierarchicalMachine = {
   context: { isAdmin: true },
   id: 'door',
@@ -96,6 +99,7 @@ const hierarchicalMachine = {
   }
 };
 
+// Test paraphernalia
 export const testCases = {
   HierarchicalMachineAndJSONPatchAndFunctionActionsAndObjectEvents: {
     description: '(hierarchical, json patch, mergeOutput, action functions and strings, event as object, >1 inputs)',
