@@ -38,6 +38,10 @@ glasses.
 import { applyPatch } from "json-patch-es6"
 import produce, { nothing } from "immer"
 
+const mergeOutputs = function (accOutputs, outputs) {
+  return (accOutputs || []).concat(outputs)
+};
+
 const jsonPatchReducer = (extendedState, extendedStateUpdateOperations) => {
   return applyPatch(extendedState, extendedStateUpdateOperations, false, false).newDocument;
 };
@@ -48,6 +52,17 @@ const immerReducer = function (extendedState, updates) {
   return produce(extendedState, updateFn)
 };
 export const NO_IMMER_UPDATES = nothing;
+
+const actionFactoryMaps = {
+  stringActions: {
+    'cancelAdmin': (extendedState, event) => {
+      return {
+        updates: [{ op: 'add', path: '/isAdmin', value: false }],
+        outputs: ['admin rights overriden']
+      }
+    }
+  },
+};
 
 const hierarchicalMachine = {
   context: { isAdmin: true },
