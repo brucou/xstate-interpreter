@@ -31,6 +31,8 @@ or any other machine interpreter
 - effect execution being separated out of the machine, it is easy to mock and stub effects for 
 testing purposes. This will allow to enjoy the benefits of automated testing without breaking 
 glasses. 
+- and React aside, we were able to integrate the interpreter with `cyclejs` with no major effort!
+ Integration with `Angular2` is in progress but seems to be going the same painless way.
 
 # Example
 
