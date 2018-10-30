@@ -182,6 +182,9 @@ outputs. The state of the machine is hence completely encapsulated and cannot be
 
 # Image gallery search : immer as state reducer, rxjs for event processing
 
+![image search interface](https://i.imgur.com/mDQQTX8.png?1) 
+
+
 ```javascript
 const showXstateMachine = machine => {
   const interpreterConfig = {
