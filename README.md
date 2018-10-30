@@ -28,7 +28,7 @@ interface a reducer which updates state in place. How you update state is not a 
 or any other machine interpreter
 - event handling can be done with the event library of your choice, by writing an adapter for the
  accepted event handling interface
-- effect execution being separated out of the machine, it is easy to mock and stub effect for 
+- effect execution being separated out of the machine, it is easy to mock and stub effects for 
 testing purposes. This will allow to enjoy the benefits of automated testing without breaking 
 glasses. 
 
@@ -39,8 +39,6 @@ import { applyPatch } from "json-patch-es6"
 import produce, { nothing } from "immer"
 
 const jsonPatchReducer = (extendedState, extendedStateUpdateOperations) => {
-  // NOTE : we don't validate operations, to avoid throwing errors when for instance the value property for an
-  // `add` JSON operation is `undefined` ; and of course we don't mutate the document in place
   return applyPatch(extendedState, extendedStateUpdateOperations, false, false).newDocument;
 };
 
