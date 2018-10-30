@@ -2,7 +2,7 @@
   "repository": "git@github.com:brucou/xstate-interpreter.git",
   "name": "xstate-interpreter",
   "author": "brucou",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "license": "MIT",
   "description": "An effectless stateful interpreter for xstate",
   "main": "dist/xstate-interpreter.js",
