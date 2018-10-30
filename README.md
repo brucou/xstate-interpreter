@@ -165,10 +165,10 @@ What happens here :
   outputs as configured `['Entered .closed.error!', ev]` with `ev` being `"OPEN"` 
 
 In short, we have shown :
-- mergeOutputs and updateState configuration
+- `mergeOutputs` and `updateState` configuration
 - how to map action strings to action factories through the mapping object `actionFactoryMap`
 - how to directly include action factory in the xstate machine
-- action factories produce two piece of information to the interpreter :
+- action factories produce two pieces of information to the interpreter :
   - how to update the machine's extended state
   - what are the machine outputs
 
@@ -179,6 +179,8 @@ outputs. The state of the machine is hence completely encapsulated and cannot be
  outside. Our interpreter is just a function producing outputs in function of the state of the 
  underlying machine. In our React machine component design, those outputs are commands towards to
   the interfaced systems. 
+
+Another example using `immer` for state update can be found in the `tests` directory.
 
 # Install
 `npm xstate-interpreter`
@@ -195,7 +197,7 @@ inputs will be sent to the machine and outputs will be collected.
 ### Semantics
 - the machine is initialized per its configuration and specifications
 - the interpreter returns a `yield` function to call the machine with an input
-- the machine's actions are in fine functions (termed action factories);
+- the machine's actions are *in fine* functions (termed action factories);
   - whose input parameters are the machine's extended state and event
   - which return are :
     - description of the updates to perform on its extended state as a result of the transition
