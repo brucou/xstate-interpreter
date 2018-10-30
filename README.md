@@ -184,6 +184,7 @@ outputs. The state of the machine is hence completely encapsulated and cannot be
 
 ![image search interface](https://i.imgur.com/mDQQTX8.png?1) 
 
+![machine visualization](https://i.imgur.com/z4hn4Cv.png?1)
 
 ```javascript
 const showXstateMachine = machine => {
