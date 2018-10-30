@@ -78,7 +78,7 @@ export function xstateReactInterpreter(Machine, machineConfig, interpreterConfig
   }
 
   return {
-    start: () => yyield({ [INIT_EVENT]: void 0 }),
+    start: () => yyield({ type: INIT_EVENT, data : void 0 }),
     yield: yyield,
     // started machine - we cannot stop it but it is ok because we won't use listeners
     machine: xMachine
