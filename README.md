@@ -43,7 +43,8 @@ interface a reducer which updates state in place. How you update state is not a 
 testing purposes. This will allow to enjoy the benefits of automated testing without breaking 
 glasses. 
 - and React aside, we were able to integrate the interpreter with `cyclejs` with no major effort!
- Integration with `Angular2` is in progress but seems to be going the same painless way.
+ Integration with `Angular2` is in progress but seems to be going the same painless way. After 
+ all, the interpreter is just a function!
 
 # Example
 
