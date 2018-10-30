@@ -46,7 +46,7 @@ glasses.
  Integration with `Angular2` is in progress but seems to be going the same painless way. After 
  all, the interpreter is just a function!
 
-# Example
+# Example 1 : json-patch as state reducer, rxjs for event processing
 
 ```javascript
 import { applyPatch } from "json-patch-es6"
@@ -180,7 +180,163 @@ outputs. The state of the machine is hence completely encapsulated and cannot be
  underlying machine. In our React machine component design, those outputs are commands towards to
   the interfaced systems. 
 
-Another example using `immer` for state update can be found in the `tests` directory.
+# Image gallery search : immer as state reducer, rxjs for event processing
+
+```javascript
+const showXstateMachine = machine => {
+  const interpreterConfig = {
+    updateState: machine.updateState,
+    mergeOutputs: machine.mergeOutputs,
+    actionFactoryMap: machine.actionFactoryMap,
+  };
+  const fsm = xstateReactInterpreter(xstateMachineFactory, machine.config, interpreterConfig);
+
+  return React.createElement(Machine, {
+    subjectFactory: Rx,
+    preprocessor: machine.preprocessor,
+    fsm: fsm,
+    commandHandlers: machine.commandHandlers,
+    componentWillUpdate: (machine.componentWillUpdate || noop)(machine.inject),
+    componentDidUpdate: (machine.componentDidUpdate || noop)(machine.inject)
+  }, null)
+};
+
+// Displays all machines (not very beautifully, but this is just for testing)
+ReactDOM.render(
+  div([
+    showXstateMachine(xstateMachines.xstateImageGallery)
+  ]),
+  document.getElementById('root')
+);
+
+export const NO_IMMER_UPDATES = nothing;
+export const immerReducer = function (extendedState, updates) {
+  if (updates === NO_IMMER_UPDATES) return extendedState
+  const updateFn = updates;
+  return produce(extendedState, updateFn)
+};
+
+export const mergeOutputs = function (accOutputs, outputs) {
+  return (accOutputs || []).concat(outputs || [])
+};
+
+export const xstateMachines = {
+  xstateImageGallery: {
+    preprocessor: rawEventSource => rawEventSource
+      .map(ev => {
+        const { rawEventName, rawEventData: e, ref } = destructureEvent(ev);
+
+        // Form raw events
+        if (rawEventName === 'onSubmit') {
+          e.persist();
+          e.preventDefault();
+          return { type: 'SEARCH', data: ref.current.value }
+        }
+        else if (rawEventName === 'onCancelClick') {
+          return { type: 'CANCEL_SEARCH', data: void 0 }
+        }
+        // Gallery
+        else if (rawEventName === 'onGalleryClick') {
+          const item = e;
+          return { type: 'SELECT_PHOTO', data: item }
+        }
+        // Photo detail
+        else if (rawEventName === 'onPhotoClick') {
+          return { type: 'EXIT_PHOTO', data: void 0 }
+        }
+        // System events
+        else if (rawEventName === 'SEARCH_SUCCESS') {
+          const items = e;
+          return { type: 'SEARCH_SUCCESS', data: items }
+        }
+        else if (rawEventName === 'SEARCH_FAILURE') {
+          return { type: 'SEARCH_FAILURE', data: void 0 }
+        }
+
+        return NO_INTENT
+      })
+      .filter(x => x !== NO_INTENT)
+    ,
+    // DOC : we kept the same machine but :
+    // - added the render actions
+    // - render must go last, in order to get the updated extended state
+    // - added an init event to trigger an entry on the initial state
+    config: {
+      context: { query: '', items: [], photo: undefined, gallery: '' },
+      initial: 'init',
+      states: {
+        init: {
+          on: { [INIT_EVENT]: 'start' }
+        },
+        start: {
+          onEntry: [renderGalleryAppImmer('start')],
+          on: { SEARCH: 'loading' }
+        },
+        loading: {
+          onEntry: ['search', renderGalleryAppImmer('loading')],
+          on: {
+            SEARCH_SUCCESS: { target: 'gallery', actions: ['updateItems'] },
+            SEARCH_FAILURE: 'error',
+            CANCEL_SEARCH: 'gallery'
+          }
+        },
+        error: {
+          onEntry: [renderGalleryAppImmer('error')],
+          on: { SEARCH: 'loading' }
+        },
+        gallery: {
+          onEntry: [renderGalleryAppImmer('gallery')],
+          on: {
+            SEARCH: 'loading',
+            SELECT_PHOTO: 'photo'
+          }
+        },
+        photo: {
+          onEntry: ['setPhoto', renderGalleryAppImmer('photo')],
+          on: { EXIT_PHOTO: 'gallery' }
+        }
+      }
+    },
+    actionFactoryMap: {
+      'search': (extendedState, { data: query }, xstateAction) => {
+        const searchCommand = { command: COMMAND_SEARCH, params: query };
+
+        return {
+          outputs: [searchCommand],
+          updates: nothing
+        }
+      },
+      'updateItems': (extendedState, { data: items }, xstateAction) => {
+        return {
+          updates: extendedState => {extendedState.items = items},
+          outputs: NO_OUTPUT
+        }
+      },
+      'setPhoto': (extendedState, { data: item }, xstateAction) => {
+        return {
+          updates: extendedState => {extendedState.photo = item},
+          outputs: NO_OUTPUT
+        }
+      }
+    },
+    updateState: immerReducer,
+    mergeOutputs: mergeOutputs,
+    commandHandlers: {
+      [COMMAND_SEARCH]: (trigger, query) => {
+        runSearchQuery(query)
+          .then(data => {
+            trigger('SEARCH_SUCCESS')(data.items)
+          })
+          .catch(error => {
+            trigger('SEARCH_FAILURE')(void 0)
+          });
+      }
+    },
+    inject: new Flipping(),
+    componentWillUpdate: flipping => (machineComponent, prevProps, prevState, snapshot, settings) => {flipping.read();},
+    componentDidUpdate: flipping => (machineComponent, nextProps, nextState, settings) => {flipping.flip();}
+  }
+```
 
 # Install
 `npm xstate-interpreter`
@@ -213,6 +369,7 @@ the executable state machine.
 - `updateState` and `mergeOutput` should be pure, monoidal operations
   - i.e. with an empty value, and associativity properties
 - all functions involved in the machine and interpreter configuration should be pure functions
+- if you use a function as xstate action, that function must be a named function!!
 - type contracts
 
 ### Tips and gotchas
@@ -227,5 +384,3 @@ configuration of the interpreter to avoid confusion or duplication
 - if the machine does not have any actions configured for an occurring transition, it outputs 
 a constant indicating that there is no output (in this version the constant is `null`). The 
 machine being a function, always outputs something as a result of being called.
-
-

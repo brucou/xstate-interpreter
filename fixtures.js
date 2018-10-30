@@ -125,11 +125,12 @@ const actionFactoryMaps = {
 };
 
 // DOC : for immer, updates are ONE function, not an array
-const immerReducer = function (extendedState, updates) {
+export const NO_IMMER_UPDATES = nothing;
+export const immerReducer = function (extendedState, updates) {
+  if (updates === NO_IMMER_UPDATES) return extendedState
   const updateFn = updates;
   return produce(extendedState, updateFn)
 };
-export const NO_IMMER_UPDATES = nothing;
 
 export const jsonPatchReducer = (extendedState, extendedStateUpdateOperations) => {
   // NOTE : we don't validate operations, to avoid throwing errors when for instance the value property for an
