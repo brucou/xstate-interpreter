@@ -64,7 +64,7 @@ const hierarchicalMachine = {
     opened: {
       on: {
         CLOSE: [
-          { target: 'closed', cond: (extState, eventObj) => eventObj.overrideAdmin, actions: ['cancelAdmin'] },
+          { target: 'closed', cond: (extState, eventObj) => eventObj.overrideAdmin, actions: { type: 'cancelAdmin' } },
           { target: 'closed', cond: (extState, eventObj) => !eventObj.overrideAdmin }
         ]
       }
@@ -115,7 +115,7 @@ const actionFactoryMaps = {
         outputs: [extendedState, event]
       }
     },
-    'cancelAdmin': (extendedState, event) => {
+    'cancelAdmin': (extendedState, event, action) => {
       return {
         updates: [{ op: 'add', path: '/isAdmin', value: false }],
         outputs: ['admin rights overriden']

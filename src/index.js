@@ -50,8 +50,6 @@ export function xstateReactInterpreter(Machine, machineConfig, interpreterConfig
 
   // can't name that function yield, it is a reserved keyword
   function yyield(event) {
-    // DOC : tips/gotcha, action functions and action string mapped to functions can be used, but action types should
-    // not. It is always possible to wrap them up into a utility function : (extS, ev) => {updates:nothing, outputs: _}
 
     const nextControlState = xMachine.transition(controlState, event, extendedState);
     const { actions: actionFactories } = nextControlState;
@@ -62,7 +60,7 @@ export function xstateReactInterpreter(Machine, machineConfig, interpreterConfig
 
       let { accExtendedState, accOutputs } = acc;
 
-      const actions = actionFactory(accExtendedState, event);
+      const actions = actionFactory(accExtendedState, event, xstateAction);
       // NOTE : `updates` holds the changes to the extended state, `outputs` what to return
       const { updates, outputs } = actions;
 

@@ -130,6 +130,42 @@ QUnit.test("(hierarchical, json patch, mergeOutput, action functions and strings
 });
 ```
 
+What happens here :
+- the machine starts in the configured initial state with the configured extended state
+- we made the following choices for our interpreter :
+  - use json patch for immutable state update
+  - outputs of the machines are arrays
+  - those arrays will be merged by simple concatenation
+- we send a `OPEN` input to the machine which triggers :
+  - because the guard is satisfied, and there is no actions defined, the machine will move to the  
+  `opened` control state, and outputs `null`, which is the value chosen for indicating that there
+   is no output.
+- we send an object input `{ type: 'CLOSE', overrideAdmin: true }` to the machine :
+   - because `overrideAdmin` property is set in the event object, the transition chosen triggers 
+   the `cancelAdmin` action, and the entry in the `closed` control state. The `cancelAdmin` 
+   action consists of updating the `isAdmin` property of the extended state of the machine to 
+   `false`. The machine outputs are `[admin rights overrriden]`. 
+- we then send the input `'OPEN'` to the machine : 
+  - because the property `isAdmin` is no longer set on the extended state, the machine will 
+  transition to the `'closed.error'` control state. On entering that state, the machine will 
+  outputs as configured `['Entered .closed.error!', ev]` with `ev` being `"OPEN"` 
+
+In short, we have shown :
+- mergeOutputs and updateState configuration
+- how to map action strings to action factories through the mapping object `actionFactoryMap`
+- how to directly include action factory in the xstate machine
+- action factories produce two piece of information to the interpreter :
+  - how to update the machine's extended state
+  - what are the machine outputs
+
+Contrary to other interpreters, the interpreter does not interpret effects. In our React 
+integration design, that responsibility is delegated to the command handler. The interpreter 
+simply advances the machines, thereby updating the machine state, and producing the machine's 
+outputs. The state of the machine is hence completely encapsulated and cannot be accessed from the
+ outside. Our interpreter is just a function producing outputs in function of the state of the 
+ underlying machine. In our React machine component design, those outputs are commands towards to
+  the interfaced systems. 
+
 # Install
 `npm xstate-interpreter`
 
@@ -139,19 +175,40 @@ QUnit.test("(hierarchical, json patch, mergeOutput, action functions and strings
 # API
 ## `xstateReactInterpreter(Machine, machineConfig, interpreterConfig)`
 ### Description
-The factory `xstateReactInterpreter` returns an interpreter which consists of two functions 
-`yield` and `start`, `start` being simple sugar for `yield(INIT_EVENT)`. Note that the `start` 
-function exists only to comply with the required interface. With our `xstate` interpreter, there 
-is no need to start with an initial event. The machine is configured and automatically goes to its 
- initial state. You can thus the interpreter `yield` function directly out of the box.
+The factory `xstateReactInterpreter` returns an interpreter with a `yield` function by which 
+inputs will be sent to the machine and outputs will be collected.
 
 ### Semantics
+- the machine is initialized per its configuration and specifications
+- the interpreter returns a `yield` function to call the machine with an input
+- the machine's actions are in fine functions (termed action factories);
+  - whose input parameters are the machine's extended state and event
+  - which return are :
+    - description of the updates to perform on its extended state as a result of the transition
+    - the outputs for the state machine as a result of receiving the input
+- on transitioning, the machine produces `updates` and `outputs`. The interpreter :
+  - perform actual updates on the machine's extended state, according to the `updateState` 
+  configured reducer
+  - outputs from the machine's triggered action factories are merged with the configured 
+  `mergeOutputs` and returned
 
 ### Contracts
-Best don't use assign - this is already taken care of by the interpreter
-However it still might work : to test !
+- `updateState` and `mergeOutput` should be pure, monoidal operations
+  - i.e. with an empty value, and associativity properties
+- all functions involved in the machine and interpreter configuration should be pure functions
+- type contracts
 
-### Examples
-
+### Tips and gotchas
+- `xstate` has automatically configured actions (logs, assign, etc). If you use them you will 
+have to define a matching action factory. Our interpreter comes without any predefined action 
+factory.
+- you can specify xstate actions as strings or functions or objects. I recommend to pick up your 
+poison instead of juggling with 3 different types. (Named) Functions are the best option in my 
+eyes, provided they do not prevent the machine visualizer from doing its job. 
+- the second parameter of the xstate machine factory i.e. `actions` is absorbed into the 
+configuration of the interpreter to avoid confusion or duplication
+- if the machine does not have any actions configured for an occurring transition, it outputs 
+a constant indicating that there is no output (in this version the constant is `null`). The 
+machine being a function, always outputs something as a result of being called.
 
 
