@@ -1,3 +1,14 @@
+- [Motivation](#motivation)
+- [Example](#example)
+- [Install](#install)
+- [Tests](#tests)
+- [API](#api)
+  * [`xstateReactInterpreter(Machine, machineConfig, interpreterConfig)`](#-xstatereactinterpreter-machine--machineconfig--interpreterconfig--)
+    + [Description](#description)
+    + [Semantics](#semantics)
+    + [Contracts](#contracts)
+    + [Tips and gotchas](#tips-and-gotchas)
+
 # Motivation
 The [xstate](https://github.com/davidkpiano/xstate) statecharts library has a few interpreters 
 already available with miscelleanous  design goals. In order to integrate `xstate` with React 
