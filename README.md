@@ -48,13 +48,6 @@ const jsonPatchReducer = (extendedState, extendedStateUpdateOperations) => {
   return applyPatch(extendedState, extendedStateUpdateOperations, false, false).newDocument;
 };
 
-// DOC : for immer, updates are ONE function, not an array
-const immerReducer = function (extendedState, updates) {
-  const updateFn = updates;
-  return produce(extendedState, updateFn)
-};
-export const NO_IMMER_UPDATES = nothing;
-
 const actionFactoryMaps = {
   stringActions: {
     'cancelAdmin': (extendedState, event) => {
