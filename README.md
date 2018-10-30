@@ -36,7 +36,6 @@ glasses.
 
 ```javascript
 import { applyPatch } from "json-patch-es6"
-import produce, { nothing } from "immer"
 
 // The machine may produce several outputs when transitioning, they have to be merged
 const mergeOutputs = function (accOutputs, outputs) {
