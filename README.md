@@ -35,10 +35,10 @@ The benefits are the following :
 could also be used via simple interface adaptation. If that is your use case, you may even 
 interface a reducer which updates state in place. How you update state is not a concern of the 
 `Machine` component
-- similarly `xstate` interpreter can be replaced by the native `react-state-driven` interpreter, 
-or any other machine interpreter
+- similarly (`xstate` machine library + this interpreter) can be replaced by the native 
+`react-state-driven` library, or any other machine interpreter satisfying the required interface
 - event handling can be done with the event library of your choice, by writing an adapter for the
- accepted event handling interface
+ accepted event handling interface (we did that for `rxjs` and `most` so far)
 - effect execution being separated out of the machine, it is easy to mock and stub effects for 
 testing purposes. This will allow to enjoy the benefits of automated testing without breaking 
 glasses. 
