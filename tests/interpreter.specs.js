@@ -1,7 +1,7 @@
 import { Machine } from "xstate"
 import { xstateReactInterpreter } from "../src"
 import * as QUnit from "qunitjs"
-import { emptyArray, testCases } from "../fixtures"
+import { emptyArray, initialContextHierarchicalMachine, testCases } from "../fixtures"
 
 /**
  * Test strategy
@@ -78,28 +78,26 @@ QUnit.test("(non-hierarchical, immer, mergeOutput, all action strings, event as 
 });
 
 QUnit.test("(hierarchical, json patch, mergeOutput, action functions and strings, event as object, >1 inputs)", function exec_test(assert) {
-  const machineConfig = testCases.HierarchicalMachineAndJSONPatchAndFunctionActionsAndObjectEvents.machine;
+  const testCase = testCases.HierarchicalMachineAndJSONPatchAndFunctionActionsAndObjectEvents;
+  const machineConfig = testCase.machine;
   const interpreterConfig = {
-    updateState: testCases.HierarchicalMachineAndJSONPatchAndFunctionActionsAndObjectEvents.updateState,
-    mergeOutputs: testCases.HierarchicalMachineAndJSONPatchAndFunctionActionsAndObjectEvents.mergeOutputs,
-    actionFactoryMap: testCases.HierarchicalMachineAndJSONPatchAndFunctionActionsAndObjectEvents.actionFactoryMap,
+    updateState: testCase.updateState,
+    mergeOutputs: testCase.mergeOutputs,
+    actionFactoryMap: testCase.actionFactoryMap,
   };
 
   const interpreter = xstateReactInterpreter(Machine, machineConfig, interpreterConfig);
-  const testScenario = testCases.HierarchicalMachineAndJSONPatchAndFunctionActionsAndObjectEvents.inputSequence;
+  const testScenario = testCase.inputSequence;
   const actualTestResults = testScenario.map(interpreter.yield);
-  const expectedTestResults = testCases.HierarchicalMachineAndJSONPatchAndFunctionActionsAndObjectEvents.outputSequence;
+  const expectedTestResults = testCase.outputSequence;
 
   testScenario.forEach((input, index) => {
     assert.deepEqual(
       actualTestResults[index],
       expectedTestResults[index],
-      testCases.HierarchicalMachineAndJSONPatchAndFunctionActionsAndObjectEvents.description
+      testCase.description
     );
   });
 
-  assert.ok(
-    testCases.StandardMachineAndImmerAndStringsActionAndEvents.machine.context === emptyArray,
-    `immer is indeed immutable library`
-  );
+  assert.ok(testCase.machine.context === initialContextHierarchicalMachine, `json patch does not mutate state in place`);
 });

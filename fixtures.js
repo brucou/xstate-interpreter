@@ -39,8 +39,9 @@ const nonHierarchicalMachine = {
 // https://xstate.js.org/docs/#/guides/guards
 // TODO: json patch, action functions, event object (done on testing)
 // TODO : add action object which does something with eventObj!!
+export const initialContextHierarchicalMachine = { isAdmin: true };
 const hierarchicalMachine = {
-  context: { isAdmin: true },
+  context: initialContextHierarchicalMachine,
   id: 'door',
   initial: 'closed',
   states: {
