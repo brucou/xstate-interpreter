@@ -192,7 +192,8 @@ Another example using `immer` for state update can be found in the `tests` direc
 ## `xstateReactInterpreter(Machine, machineConfig, interpreterConfig)`
 ### Description
 The factory `xstateReactInterpreter` returns an interpreter with a `yield` function by which 
-inputs will be sent to the machine and outputs will be collected.
+inputs will be sent to the machine and outputs will be collected. It also returns an instance of 
+the executable state machine.
 
 ### Semantics
 - the machine is initialized per its configuration and specifications

@@ -50,7 +50,7 @@ const hierarchicalMachine = {
       states: {
         'idle': {},
         'error': {
-          onEntry: function logMessage(extS, ev) {return { updates: [], outputs: ['Entered .closed.error!', ev] }}
+          onEntry: [function logMessage(extS, ev) {return { updates: [], outputs: ['Entered .closed.error!', ev] }}]
         }
       },
       // 'OPEN', {CLOSE, overrideAdmin:true}, 'OPEN'}
@@ -131,7 +131,7 @@ const immerReducer = function (extendedState, updates) {
 };
 export const NO_IMMER_UPDATES = nothing;
 
-const jsonPatchReducer = (extendedState, extendedStateUpdateOperations) => {
+export const jsonPatchReducer = (extendedState, extendedStateUpdateOperations) => {
   // NOTE : we don't validate operations, to avoid throwing errors when for instance the value property for an
   // `add` JSON operation is `undefined` ; and of course we don't mutate the document in place
   return applyPatch(extendedState, extendedStateUpdateOperations, false, false).newDocument;
@@ -139,8 +139,8 @@ const jsonPatchReducer = (extendedState, extendedStateUpdateOperations) => {
 export const NO_JSON_PATCH_UPDATES = [];
 
 // DOC : outputs is an array of output = command
-const mergeOutputs = function (accOutputs, outputs) {
-  return (accOutputs || []).concat(outputs)
+export const mergeOutputs = function (accOutputs, outputs) {
+  return (accOutputs || []).concat(outputs || [])
 };
 
 const reducers = {

@@ -80,6 +80,7 @@ export function xstateReactInterpreter(Machine, machineConfig, interpreterConfig
   return {
     start: () => yyield({ [INIT_EVENT]: void 0 }),
     yield: yyield,
-    machine: xMachine // started machine - we cannot stop it but it is ok because we won't use listeners
+    // started machine - we cannot stop it but it is ok because we won't use listeners
+    machine: xMachine
   }
 }
