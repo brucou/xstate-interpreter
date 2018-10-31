@@ -377,6 +377,11 @@ the executable state machine.
 - type contracts
 
 ### Tips and gotchas
+- integrating `xstate-interpreter` with `react-state-driven` means that the xstate machine will 
+receive an init event. This means a dummy initial state and an init transition should be configured 
+towards the real initial state of the machine. Alternaively, the machine can be configured to 
+simply ignore unaccepted events. In any case, the xstate machine cannot reuse the reserved 
+initial event.
 - `xstate` has automatically configured actions (logs, assign, etc). If you use them you will 
 have to define a matching action factory. Our interpreter comes without any predefined action 
 factory.
