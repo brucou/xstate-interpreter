@@ -371,8 +371,8 @@ the executable state machine.
 - the interpreter returns a `yield` function to call the machine with an input
 - the machine's actions are *in fine* functions (termed action factories);
   - whose input parameters are the machine's extended state and event
-  - which return are :
-    - description of the updates to perform on its extended state as a result of the transition
+  - which return :
+    - a description of the updates to perform on its extended state as a result of the transition
     - the outputs for the state machine as a result of receiving the input
 - on transitioning, the machine produces `updates` and `outputs`. The interpreter :
   - perform actual updates on the machine's extended state, according to the `updateState` 
