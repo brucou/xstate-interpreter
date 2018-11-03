@@ -78,6 +78,7 @@ export function xstateReactInterpreter(Machine, machineConfig, interpreterConfig
   }
 
   return {
+    // TODO : remove when finalized xstateRxAdapter
     start: () => yyield({ type: INIT_EVENT, data : void 0 }),
     yield: yyield,
     // started machine - we cannot stop it but it is ok because we won't use listeners

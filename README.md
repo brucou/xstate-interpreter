@@ -196,7 +196,7 @@ const showXstateMachine = machine => {
   const fsm = xstateReactInterpreter(xstateMachineFactory, machine.config, interpreterConfig);
 
   return React.createElement(Machine, {
-    subjectFactory: Rx,
+    eventHandler: xStateRxAdapter,
     preprocessor: machine.preprocessor,
     fsm: fsm,
     commandHandlers: machine.commandHandlers,
@@ -227,11 +227,15 @@ export const mergeOutputs = function (accOutputs, outputs) {
 export const xstateMachines = {
   xstateImageGallery: {
     preprocessor: rawEventSource => rawEventSource
+      .startWith([INIT_EVENT])
       .map(ev => {
         const { rawEventName, rawEventData: e, ref } = destructureEvent(ev);
 
+        if (rawEventName === INIT_EVENT) {
+          return { type: INIT_EVENT, data : void 0}
+        }
         // Form raw events
-        if (rawEventName === 'onSubmit') {
+        else if (rawEventName === 'onSubmit') {
           e.persist();
           e.preventDefault();
           return { type: 'SEARCH', data: ref.current.value }
@@ -369,6 +373,50 @@ the executable state machine.
   - outputs from the machine's triggered action factories are merged with the configured 
   `mergeOutputs` and returned
 
+### Types
+JSDoc types available is `/src/types` :
+
+```javascript
+
+/**
+ * @typedef {function(ExtendedState, ExtendedStateUpdate): ExtendedState} ExtendedStateReducer
+ */
+/**
+ * @typedef {*} Output
+ */
+/**
+ * @typedef {Container<Output>} Outputs
+ * `Container` is a foldable functor, for instance `Array`
+ */
+/**
+ * @typedef {function(Outputs, Outputs): Outputs} OutputReducer
+ */
+/**
+ * @typedef {String} xStateActionType
+ * The type of xstate action. In xstate v4.0, this is the property `type` of the xstate action
+ */
+/**
+ * @typedef {*} xStateEvent
+ * cf. xState types. Usually either a string or an object with a `type` property which is a string
+ */
+/**
+ * @typedef {*} xstateAction
+ * cf. xState types. Usually an object with at least a `type` and `exec` property
+ * The exec property when set (i.e. truthy) holds an action factory function.
+ * The `type` property when set holds an identifier used to map to an action factory
+ */
+/**
+ * @typedef {function(ExtendedState, xStateEvent, xstateAction):x} xStateActionFactory
+ * The type of xstate action. In xstate v4.0, this is the property `type` of the xstate action
+ */
+/**
+ * @typedef {Object} interpreterConfig
+ * @property {ExtendedStateReducer} updateState
+ * @property {OutputReducer} mergeOutputs
+ * @property {Object.<xStateActionType, xStateActionFactory>} actionFactoryMap
+ */
+```
+
 ### Contracts
 - `updateState` and `mergeOutput` should be pure, monoidal operations
   - i.e. with an empty value, and associativity properties
@@ -381,9 +429,10 @@ towards the real initial state of the machine. Alternaively, the machine can be 
 simply ignore unaccepted events. In any case, the xstate machine cannot reuse the reserved 
 initial event.
 
-### Tips and gotchas
-- `xstate` has automatically configured actions (logs, assign, etc). If you use them you will 
-have to define a matching action factory. Our interpreter comes without any predefined action 
+### Tips, gotchas and limitations
+- activities and delays are not currently interpreted
+- `xstate` has automatically configured actions (logs, assign, invoke, etc). If you use them you 
+will have to define a matching action factory. Our interpreter comes without any predefined action 
 factory.
 - you can specify xstate actions as strings or functions or objects. I recommend to pick up your 
 poison instead of juggling with 3 different types. (Named) Functions are the best option in my 
