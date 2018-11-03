@@ -187,6 +187,13 @@ outputs. The state of the machine is hence completely encapsulated and cannot be
 ![machine visualization](https://i.imgur.com/z4hn4Cv.png?1)
 
 ```javascript
+const xStateRxAdapter = {
+  subjectFactory: () => new Rx.Subject(),
+  // NOTE : must be bound, because, reasons
+  merge: Rx.Observable.merge.bind(Rx.Observable),
+  create: fn => Rx.Observable.create(fn)
+};
+
 const showXstateMachine = machine => {
   const interpreterConfig = {
     updateState: machine.updateState,
