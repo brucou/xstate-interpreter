@@ -1,1 +1,0 @@
-- make a post about concurrency and the image gallery
