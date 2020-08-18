@@ -1,3 +1,12 @@
+# IMPORTANT
+This package is kept for historical reasons but is no longer maintained. You can instead use the [Kingly](https://github.com/brucou/kingly) state machine library which implements the sought-for architecture and patterns. The reasons for the deprecation are:
+
+- The design of `xstate` makes it really hard to build a functional layer on top of it. `xstate` seems to favor non-functional usage as it links itself to the SCXML standard. SCXML goals and design (in particular the choice of XML) reflect the interests of the telecommunications industry at the time of creation (speech processing, multi-modal interactions mostly). SCXML is oriented to process control, and processes can not be manipulated like functions. 
+- The cost associated to the `xstate` library (15Kb in some cases) outweighs the benefits. On top of that, adding an interpreting layer that deals with the API surface and complexity of `xstate` compounds the problem. Conversely, the Kingly state machine library compiles an average state machine to below 1 KB JavaScript with zero dependencies. In practice, the extra functionalities proposed by the SCXML-oriented `xstate` (actors, activities, etc.) can be replicated without the coupling and extending the API surface. Cf. Kingly's documentation for examples.
+- The interpreter layer is fragile as changes in `xstate` means maintenance tasks on the side of this library. A better design avoids unnecessary dependencies.
+
+
+# Table of contents
 - [Motivation](#motivation)
 - [Example](#example)
 - [Install](#install)
